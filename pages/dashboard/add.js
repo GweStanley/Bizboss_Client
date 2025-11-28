@@ -30,30 +30,6 @@ const BusinessMap = dynamic(
   { ssr: false }
 );
 
-// Create a client-side map component in components/BusinessMapClient.jsx
-// Example content for that file:
-/*
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-
-function ClickToSet({ setPos }) {
-  useMapEvents({
-    click(e) {
-      setPos([e.latlng.lat, e.latlng.lng]);
-    },
-  });
-  return null;
-}
-
-export function BusinessMapClient({ position, setPos }) {
-  return (
-    <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Marker position={position} />
-      <ClickToSet setPos={setPos} />
-    </MapContainer>
-  );
-}
-*/
 
 export default function AddBusiness() {
   const { token, ensureAuthed } = useAuth();

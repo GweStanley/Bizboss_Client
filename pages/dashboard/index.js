@@ -57,7 +57,7 @@ export default function Dashboard() {
   const resolveUrl = (src) => {
     if (!src) return ''; // no local placeholder
     if (src.startsWith('http')) return src;
-    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
+    const base = process.env.NEXT_PUBLIC_API_BASE || 'https://bizzboss-server.onrender.com';
     return `${base.replace(/\/$/, '')}${src.startsWith('/') ? '' : '/'}${src}`;
   };
 
