@@ -1,0 +1,43 @@
+'use client'; // optional, makes it explicit this is client-side
+
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import { useEffect } from 'react';
+
+// Fix default marker icon issue with Next.js / Webpack
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+  iconUrl: '/leaflet/marker-icon.png',
+  shadowUrl: '/leaflet/marker-shadow.png',
+});
+
+// Component to handle map clicks
+function ClickToSet({ setPos }) {
+  useMapEvents({
+    click(e) {
+      setPos([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return null;
+}
+
+// Main client-side map component
+export function BusinessMapClient({ position, setPos }) {
+  // Ensure Leaflet container refreshes correctly when position changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const mapEl = document.querySelector('.leaflet-container');
+      if (mapEl) mapEl._leaflet_id = null;
+    }
+  }, [position]);
+
+  return (
+    <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <Marker position={position} />
+      <ClickToSet setPos={setPos} />
+    </MapContainer>
+  );
+}
