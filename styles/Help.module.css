@@ -1,0 +1,74 @@
+.help-heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.help-heading h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.help-heading p {
+  color: #6b7280; /* muted text */
+  font-size: 1rem;
+}
+
+.card-help {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--background);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-help:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.accordion-button {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  font-weight: 500;
+}
+
+.accordion-button:not(.collapsed) {
+  color: #2563eb !important;
+  background-color: #f3f4f6 !important;
+}
+
+.accordion-body p,
+.accordion-body li {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.contact-section {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.contact-section h4 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.contact-section p {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.contact-section a.btn-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  transition: background-color 0.2s ease;
+}
+
+.contact-section a.btn-primary:hover {
+  background-color: #1e40af;
+  border-color: #1e40af;
+}

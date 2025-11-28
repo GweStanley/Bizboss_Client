@@ -1,0 +1,16 @@
+.hero {
+  background: linear-gradient(to right, #007bff0d, #00c6ff0d);
+}
+
+.hero h1 {
+  color: #002b5b;
+}
+
+.pricingList {
+  padding-left: 0;
+  list-style: none;
+}
+
+.pricingList li {
+  margin-bottom: 0.5rem;
+}
