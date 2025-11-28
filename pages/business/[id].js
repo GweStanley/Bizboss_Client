@@ -4,10 +4,8 @@ import api from '../../services/api';
 import { Container, Row, Col, Card, Button, Carousel } from 'react-bootstrap';
 import dynamic from 'next/dynamic';
 
-// SSR-safe Leaflet imports
-const MapContainer = dynamic(() => import('react-leaflet').then(m => m.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then(m => m.TileLayer), { ssr: false });
-const Marker = dynamic(() => import('react-leaflet').then(m => m.Marker), { ssr: false });
+// Dynamically import the map with SSR disabled
+const BusinessMap = dynamic(() => import('../../components/BusinessMap'), { ssr: false });
 
 export default function BusinessDetails() {
   const router = useRouter();
@@ -38,15 +36,13 @@ export default function BusinessDetails() {
           const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
           window.open(url, '_blank');
         },
-        (err) => {
-          console.warn('Geolocation failed, opening directions without origin.', err);
+        () => {
           const destination = `${lat},${lng}`;
           const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
           window.open(url, '_blank');
         }
       );
     } else {
-      // Fallback if geolocation not supported
       const destination = `${lat},${lng}`;
       const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
       window.open(url, '_blank');
@@ -112,7 +108,9 @@ export default function BusinessDetails() {
               {business.phone && <span>📞 {business.phone}</span>}
               {business.email && <span>✉️ {business.email}</span>}
               {business.website && (
-                <a href={business.website} target="_blank" rel="noreferrer">🌐 Website</a>
+                <a href={business.website} target="_blank" rel="noreferrer">
+                  🌐 Website
+                </a>
               )}
             </div>
 
@@ -134,12 +132,7 @@ export default function BusinessDetails() {
           <Card className="p-3">
             <h5>Location</h5>
             <div style={{ height: 320 }}>
-              {typeof window !== 'undefined' && (
-                <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  <Marker position={position} />
-                </MapContainer>
-              )}
+              <BusinessMap position={position} />
             </div>
           </Card>
         </Col>
