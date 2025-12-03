@@ -1,3 +1,4 @@
+// client/pages/dashboard/add.js
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { Container, Card, Form, Button, Row, Col, Image } from 'react-bootstrap';
@@ -23,13 +24,11 @@ const schema = z.object({
   lng: z.coerce.number(),
 });
 
-// Client-only Map component
+// Client-only Map component (dynamic import, SSR disabled)
 const BusinessMap = dynamic(
-  () =>
-    import('../../components/BusinessMapClient').then((mod) => mod.BusinessMapClient),
+  () => import('../../components/BusinessMapClient'),
   { ssr: false }
 );
-
 
 export default function AddBusiness() {
   const { token, ensureAuthed } = useAuth();
@@ -109,7 +108,7 @@ export default function AddBusiness() {
                 <Form.Label>Category</Form.Label>
                 <Form.Select {...register('category')} isInvalid={!!errors.category}>
                   <option value="">Select a category</option>
-                  {/* ...options */}
+                  {/* Add your options here */}
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
               </Form.Group>
@@ -142,7 +141,7 @@ export default function AddBusiness() {
 
             {/* Map */}
             <Col md={12} style={{ height: 320 }}>
-              <BusinessMap position={pos} setPos={setPos} />
+              {typeof window !== 'undefined' && <BusinessMap position={pos} setPos={setPos} />}
               <small className="text-muted">Click on the map to set coordinates.</small>
             </Col>
 
