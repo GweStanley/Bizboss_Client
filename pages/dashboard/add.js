@@ -110,11 +110,26 @@ export default function AddBusiness() {
                 <Form.Label>Category</Form.Label>
                 <Form.Select {...register('category')} isInvalid={!!errors.category}>
                   <option value="">Select a category</option>
-                  <option value="IT">IT</option>
-                  <option value="Services">Services</option>
-                  <option value="Food">Food</option>
-                  <option value="Sport">Sport</option>
-                  <option value="Other">Other</option>
+                    <option value="Restaurant">Restaurant / Cafe</option>
+                    <option value="Grocery">Grocery / Supermarket</option>
+                    <option value="Clothing">Clothing / Fashion</option>
+                    <option value="Electronics">Electronics / Gadgets</option>
+                    <option value="Health">Health / Pharmacy</option>
+                    <option value="Fitness">Fitness / Gym</option>
+                    <option value="Salon">Beauty / Salon</option>
+                    <option value="Education">Education / Training</option>
+                    <option value="Finance">Finance / Banking</option>
+                    <option value="Real Estate">Real Estate / Property</option>
+                    <option value="Automotive">Automotive / Car Services</option>
+                    <option value="Travel">Travel / Tourism</option>
+                    <option value="Entertainment">Entertainment / Leisure</option>
+                    <option value="IT">IT / Software / Tech</option>
+                    <option value="Home Services">Home Services / Repairs</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                    <option value="Legal">Legal / Consulting</option>
+                    <option value="Logistics">Logistics / Delivery</option>
+                    <option value="Arts & Crafts">Arts & Crafts</option>
+                    <option value="Other">Other</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
               </Form.Group>
