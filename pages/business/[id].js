@@ -18,7 +18,7 @@ export default function BusinessDetails() {
   const resolveUrl = (src) => {
     if (!src) return '';
     if (src.startsWith('http')) return src;
-    const base = (process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000').replace(/\/api$/, '');
+    const base = (process.env.NEXT_PUBLIC_API_BASE || 'https://bizzboss-server.onrender.com').replace(/\/api$/, '');
     return `${base}${src.startsWith('/') ? '' : '/'}${src}`;
   };
 
