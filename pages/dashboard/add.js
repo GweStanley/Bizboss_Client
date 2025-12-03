@@ -25,11 +25,11 @@ const schema = z.object({
 });
 
 // dynamic import that resolves default or named export; SSR disabled
-const BusinessMap = dynamic(
-  () =>
-    import('../../components/BusinessMapClient').then((mod) => mod.BusinessMapClient || mod.default),
-  { ssr: false, loading: () => <div style={{height:320}}>Loading map…</div> }
-);
+const BusinessMap = dynamic(() => import("../../components/BusinessMapClient"), {
+  ssr: false,
+  loading: () => <p>Loading map…</p>,
+});
+
 
 export default function AddBusiness() {
   const { token, ensureAuthed } = useAuth();

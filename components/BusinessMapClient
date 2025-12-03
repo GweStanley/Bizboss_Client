@@ -24,7 +24,9 @@ function ClickToSet({ setPos }) {
 }
 
 // Main client-side map component
-export function BusinessMapClient({ position, setPos }) {
+export default function BusinessMapClient({ position, setPos }) {
+  ...
+}
   // Ensure Leaflet container refreshes correctly when position changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
