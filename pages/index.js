@@ -13,7 +13,7 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Directly read the backend base URL from env
-  const base = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') || 'http://localhost:5000';
+  const base = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') || 'https://bizzboss-server.onrender.com';
 
   useEffect(() => {
     const load = async () => {
