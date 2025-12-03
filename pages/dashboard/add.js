@@ -24,19 +24,23 @@ const schema = z.object({
   lng: z.coerce.number(),
 });
 
-// Client-only Map component
+// dynamic import that resolves default or named export; SSR disabled
 const BusinessMap = dynamic(
   () =>
-    import('../../components/BusinessMapClient').then((mod) => mod.BusinessMapClient),
-  { ssr: false }
+    import('../../components/BusinessMapClient').then((mod) => mod.BusinessMapClient || mod.default),
+  { ssr: false, loading: () => <div style={{height:320}}>Loading map…</div> }
 );
 
 export default function AddBusiness() {
   const { token, ensureAuthed } = useAuth();
   const [pos, setPos] = useState([4.0511, 9.7679]); // Default Douala
   const [files, setFiles] = useState([]);
+  const [mapVisible, setMapVisible] = useState(false);
 
-  useEffect(() => { ensureAuthed(); }, []);
+  useEffect(() => {
+    // ensureAuthed may be sync or async; call safely
+    try { ensureAuthed && ensureAuthed(); } catch (e) { /* ignore */ }
+  }, [ensureAuthed]);
 
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } =
     useForm({
@@ -86,6 +90,7 @@ export default function AddBusiness() {
       toast.success('Business created successfully!');
       window.location.href = '/dashboard';
     } catch (e) {
+      console.error('Create business error:', e);
       toast.error(e?.response?.data?.msg || 'Create failed');
     }
   };
@@ -105,31 +110,32 @@ export default function AddBusiness() {
                 <Form.Control.Feedback type="invalid">{errors.name?.message}</Form.Control.Feedback>
               </Form.Group>
             </Col>
+
             <Col md={6}>
               <Form.Group className="mb-2">
                 <Form.Label>Category</Form.Label>
                 <Form.Select {...register('category')} isInvalid={!!errors.category}>
                   <option value="">Select a category</option>
-                    <option value="Restaurant">Restaurant / Cafe</option>
-                    <option value="Grocery">Grocery / Supermarket</option>
-                    <option value="Clothing">Clothing / Fashion</option>
-                    <option value="Electronics">Electronics / Gadgets</option>
-                    <option value="Health">Health / Pharmacy</option>
-                    <option value="Fitness">Fitness / Gym</option>
-                    <option value="Salon">Beauty / Salon</option>
-                    <option value="Education">Education / Training</option>
-                    <option value="Finance">Finance / Banking</option>
-                    <option value="Real Estate">Real Estate / Property</option>
-                    <option value="Automotive">Automotive / Car Services</option>
-                    <option value="Travel">Travel / Tourism</option>
-                    <option value="Entertainment">Entertainment / Leisure</option>
-                    <option value="IT">IT / Software / Tech</option>
-                    <option value="Home Services">Home Services / Repairs</option>
-                    <option value="Food & Beverage">Food & Beverage</option>
-                    <option value="Legal">Legal / Consulting</option>
-                    <option value="Logistics">Logistics / Delivery</option>
-                    <option value="Arts & Crafts">Arts & Crafts</option>
-                    <option value="Other">Other</option>
+                  <option value="Restaurant">Restaurant / Cafe</option>
+                  <option value="Grocery">Grocery / Supermarket</option>
+                  <option value="Clothing">Clothing / Fashion</option>
+                  <option value="Electronics">Electronics / Gadgets</option>
+                  <option value="Health">Health / Pharmacy</option>
+                  <option value="Fitness">Fitness / Gym</option>
+                  <option value="Salon">Beauty / Salon</option>
+                  <option value="Education">Education / Training</option>
+                  <option value="Finance">Finance / Banking</option>
+                  <option value="Real Estate">Real Estate / Property</option>
+                  <option value="Automotive">Automotive / Car Services</option>
+                  <option value="Travel">Travel / Tourism</option>
+                  <option value="Entertainment">Entertainment / Leisure</option>
+                  <option value="IT">IT / Software / Tech</option>
+                  <option value="Home Services">Home Services / Repairs</option>
+                  <option value="Food & Beverage">Food & Beverage</option>
+                  <option value="Legal">Legal / Consulting</option>
+                  <option value="Logistics">Logistics / Delivery</option>
+                  <option value="Arts & Crafts">Arts & Crafts</option>
+                  <option value="Other">Other</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
               </Form.Group>
@@ -179,7 +185,8 @@ export default function AddBusiness() {
               <Form.Group className="mb-2">
                 <Form.Label>Latitude</Form.Label>
                 <Form.Control
-                  type="number" step="any"
+                  type="number"
+                  step="any"
                   {...register('lat', { valueAsNumber: true })}
                   onChange={(e) => setPos([Number(e.target.value), pos[1]])}
                   isInvalid={!!errors.lat}
@@ -190,7 +197,8 @@ export default function AddBusiness() {
               <Form.Group className="mb-2">
                 <Form.Label>Longitude</Form.Label>
                 <Form.Control
-                  type="number" step="any"
+                  type="number"
+                  step="any"
                   {...register('lng', { valueAsNumber: true })}
                   onChange={(e) => setPos([pos[0], Number(e.target.value)])}
                   isInvalid={!!errors.lng}
@@ -198,10 +206,19 @@ export default function AddBusiness() {
               </Form.Group>
             </Col>
 
-            {/* Map */}
+            {/* Map area: load-on-demand to avoid client crash */}
             <Col md={12} style={{ height: 320 }}>
-              <BusinessMap position={pos} setPos={setPos} />
-              <small className="text-muted">Click on the map to set coordinates.</small>
+              {!mapVisible && (
+                <div className="d-flex align-items-center justify-content-between" style={{ height: '100%' }}>
+                  <small className="text-muted">Map is off to prevent client errors. Click to load.</small>
+                  <Button onClick={() => setMapVisible(true)}>Show map</Button>
+                </div>
+              )}
+              {mapVisible && typeof window !== 'undefined' && (
+                <div style={{ height: 320 }}>
+                  <BusinessMap position={pos} setPos={setPos} />
+                </div>
+              )}
             </Col>
 
             {/* Images */}
