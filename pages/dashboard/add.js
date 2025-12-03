@@ -24,9 +24,10 @@ const schema = z.object({
   lng: z.coerce.number(),
 });
 
-// Client-only Map component (dynamic import, SSR disabled)
+// Client-only Map component
 const BusinessMap = dynamic(
-  () => import('../../components/BusinessMapClient'),
+  () =>
+    import('../../components/BusinessMapClient').then((mod) => mod.BusinessMapClient),
   { ssr: false }
 );
 
@@ -95,6 +96,7 @@ export default function AddBusiness() {
         <h3 className="mb-3">Add Business</h3>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row className="g-3">
+
             {/* Name & Category */}
             <Col md={6}>
               <Form.Group className="mb-2">
@@ -108,7 +110,11 @@ export default function AddBusiness() {
                 <Form.Label>Category</Form.Label>
                 <Form.Select {...register('category')} isInvalid={!!errors.category}>
                   <option value="">Select a category</option>
-                  {/* Add your options here */}
+                  <option value="IT">IT</option>
+                  <option value="Services">Services</option>
+                  <option value="Food">Food</option>
+                  <option value="Sport">Sport</option>
+                  <option value="Other">Other</option>
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
               </Form.Group>
@@ -123,25 +129,63 @@ export default function AddBusiness() {
               </Form.Group>
             </Col>
 
+            {/* Phone & Email */}
+            <Col md={6}>
+              <Form.Group className="mb-2">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control {...register('phone')} />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-2">
+                <Form.Label>Email</Form.Label>
+                <Form.Control {...register('email')} isInvalid={!!errors.email} />
+                <Form.Control.Feedback type="invalid">{errors.email?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            {/* Website & WhatsApp */}
+            <Col md={6}>
+              <Form.Group className="mb-2">
+                <Form.Label>Website</Form.Label>
+                <Form.Control {...register('website')} isInvalid={!!errors.website} />
+                <Form.Control.Feedback type="invalid">{errors.website?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-2">
+                <Form.Label>WhatsApp Phone</Form.Label>
+                <Form.Control {...register('whatsappPhone')} />
+              </Form.Group>
+            </Col>
+
             {/* Coordinates */}
             <Col md={6}>
               <Form.Group className="mb-2">
                 <Form.Label>Latitude</Form.Label>
-                <Form.Control type="number" step="any" {...register('lat', { valueAsNumber: true })}
-                  onChange={(e) => setPos([Number(e.target.value), pos[1]])} isInvalid={!!errors.lat} />
+                <Form.Control
+                  type="number" step="any"
+                  {...register('lat', { valueAsNumber: true })}
+                  onChange={(e) => setPos([Number(e.target.value), pos[1]])}
+                  isInvalid={!!errors.lat}
+                />
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group className="mb-2">
                 <Form.Label>Longitude</Form.Label>
-                <Form.Control type="number" step="any" {...register('lng', { valueAsNumber: true })}
-                  onChange={(e) => setPos([pos[0], Number(e.target.value)])} isInvalid={!!errors.lng} />
+                <Form.Control
+                  type="number" step="any"
+                  {...register('lng', { valueAsNumber: true })}
+                  onChange={(e) => setPos([pos[0], Number(e.target.value)])}
+                  isInvalid={!!errors.lng}
+                />
               </Form.Group>
             </Col>
 
             {/* Map */}
             <Col md={12} style={{ height: 320 }}>
-              {typeof window !== 'undefined' && <BusinessMap position={pos} setPos={setPos} />}
+              <BusinessMap position={pos} setPos={setPos} />
               <small className="text-muted">Click on the map to set coordinates.</small>
             </Col>
 
@@ -154,13 +198,26 @@ export default function AddBusiness() {
               <div className="d-flex gap-3 flex-wrap">
                 {files.map((f, i) => (
                   <div key={i} className="position-relative">
-                    <Image src={URL.createObjectURL(f)} alt="preview" thumbnail style={{ width: 120, height: 120, objectFit: 'cover' }} />
-                    <Button size="sm" variant="danger" className="position-absolute top-0 end-0" onClick={() => removeFile(i)}>×</Button>
+                    <Image
+                      src={URL.createObjectURL(f)}
+                      alt="preview"
+                      thumbnail
+                      style={{ width: 120, height: 120, objectFit: 'cover' }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      className="position-absolute top-0 end-0"
+                      onClick={() => removeFile(i)}
+                    >
+                      ×
+                    </Button>
                   </div>
                 ))}
               </div>
             </Col>
 
+            {/* Submit */}
             <Col md={12} className="mt-2">
               <Button type="submit" disabled={isSubmitting}>Create</Button>
             </Col>
