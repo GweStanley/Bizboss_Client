@@ -1,17 +1,16 @@
 import Link from 'next/link';
 import { Card, Button } from 'react-bootstrap';
-import { getPublicBase } from '../utils/url';
 
 export default function BusinessCard({ business }) {
-  const base = getPublicBase(); // backend URL
+  const BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
 
   // Always resolve first image from backend uploads
   const raw = business.images?.[0] || '';
   const img = raw.startsWith('http')
     ? raw
     : raw
-      ? `${base}${raw.startsWith('/') ? '' : '/'}${raw}`
-      : null; // no frontend placeholder
+      ? `${BASE}${raw.startsWith('/') ? '' : '/'}${raw}`
+      : null; // no placeholder
 
   return (
     <Card className="h-100 shadow-sm">
