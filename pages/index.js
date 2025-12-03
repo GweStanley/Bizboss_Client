@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import api from '../services/api';
 import BusinessCard from '../components/BusinessCard';
 import FilterSidebar from '../components/FilterSidebar';
-import { getPublicBase } from '../utils/url'; // ensures backend URL is prepended
 
 export default function Home() {
   const [filters, setFilters] = useState({ name: '', category: '' });
@@ -13,7 +12,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const base = getPublicBase(); // backend URL
+  // Directly read the backend base URL from env
+  const base = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, '') || 'http://localhost:5000';
 
   useEffect(() => {
     const load = async () => {
@@ -27,7 +27,7 @@ export default function Home() {
         const path = `/businesses?${params.toString()}`;
         const res = await api.get(path);
 
-        // ensure images always have backend URL
+        // Prepend backend URL to images if needed
         const businessesWithFullUrls = (res.data || []).map(b => {
           if (Array.isArray(b.images)) {
             b.images = b.images.map(img =>
@@ -60,7 +60,6 @@ export default function Home() {
       <main>
         <CarouselHome />
 
-        {/* Registered Businesses Section */}
         <Container id="businesses" className="my-5">
           <h2 className="mb-4">Registered Businesses</h2>
           <Row>
