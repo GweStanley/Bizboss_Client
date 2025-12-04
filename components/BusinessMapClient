@@ -1,45 +1,57 @@
-'use client'; // optional, makes it explicit this is client-side
+"use client";
 
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-import { useEffect } from 'react';
+import dynamic from "next/dynamic";
+import { useEffect } from "react";
 
-// Fix default marker icon issue with Next.js / Webpack
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: '/leaflet/marker-icon-2x.png',
-  iconUrl: '/leaflet/marker-icon.png',
-  shadowUrl: '/leaflet/marker-shadow.png',
-});
+const MapContainer = dynamic(
+  () => import("react-leaflet").then(mod => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then(mod => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then(mod => mod.Marker),
+  { ssr: false }
+);
+const useMapEvents = dynamic(
+  () => import("react-leaflet").then(mod => mod.useMapEvents),
+  { ssr: false }
+);
 
-// Component to handle map clicks
-function ClickToSet({ setPos }) {
-  useMapEvents({
-    click(e) {
-      setPos([e.latlng.lat, e.latlng.lng]);
-    },
-  });
-  return null;
-}
-
-// Main client-side map component
 export default function BusinessMapClient({ position, setPos }) {
-  ...
-}
-  // Ensure Leaflet container refreshes correctly when position changes
+
+  function MapClicker() {
+    useMapEvents({
+      click(e) {
+        setPos([e.latlng.lat, e.latlng.lng]);
+      }
+    });
+    return null;
+  }
+
+  // Fix leaflet icon path issues
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const mapEl = document.querySelector('.leaflet-container');
-      if (mapEl) mapEl._leaflet_id = null;
-    }
-  }, [position]);
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: "/marker-icon-2x.png",
+      iconUrl: "/marker-icon.png",
+      shadowUrl: "/marker-shadow.png",
+    });
+  }, []);
+
+  if (!position) return null;
 
   return (
-    <MapContainer center={position} zoom={13} style={{ height: '100%', width: '100%' }}>
+    <MapContainer
+      center={position}
+      zoom={13}
+      style={{ width: "100%", height: "100%" }}
+    >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Marker position={position} />
-      <ClickToSet setPos={setPos} />
+      <MapClicker />
     </MapContainer>
   );
 }
