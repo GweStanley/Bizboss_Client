@@ -1,174 +1,255 @@
-import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
-import { Container, Card, Form, Button, Row, Col, Image } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import api from '../../../services/api';
-import { useAuth } from '../../../context/AuthContext';
-import { toast } from 'react-toastify';
-import { useRouter } from 'next/router';
-import { toWaLink, stripPhone } from '../../../utils/helpers';
-import { getPublicBase } from '../../../utils/url';
+import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { Container, Card, Form, Button, Row, Col, Image } from "react-bootstrap";
+import { useForm } from "react-hook-form";
+import api from "../../../services/api";
+import { useAuth } from "../../../context/AuthContext";
+import { toast } from "react-toastify";
 
-// Dynamic import client-only map (SSR disabled)
-const EditBusinessMap = dynamic(
-  () => import('../../../components/EditBusinessMapClient'),
-  { ssr: false }
-);
-
-const schema = z.object({
-  name: z.string().min(3),
-  category: z.string().min(2),
-  description: z.string().min(10),
-  phone: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
-  website: z.string().url().optional().or(z.literal('')),
-  whatsappPhone: z.string().optional(),
-  whatsappLink: z.string().url().optional().or(z.literal('')),
-  lat: z.coerce.number(),
-  lng: z.coerce.number()
+const BusinessMap = dynamic(() => import("../../../components/BusinessMapClient"), {
+  ssr: false,
 });
 
 export default function EditBusiness() {
-  const { token, ensureAuthed } = useAuth();
   const router = useRouter();
   const { id } = router.query;
-  const [pos, setPos] = useState([4.0511, 9.7679]);
+  const { token, ensureAuthed } = useAuth();
+
+  const [loading, setLoading] = useState(true);
   const [existingImages, setExistingImages] = useState([]);
-  const [newFiles, setNewFiles] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+  const [pos, setPos] = useState([4.0511, 9.7679]);
 
-  const { register, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } =
-    useForm({ resolver: zodResolver(schema) });
-
-  useEffect(() => { ensureAuthed(); }, [ensureAuthed]);
+  const { register, handleSubmit, reset, setValue } = useForm();
 
   useEffect(() => {
-    const load = async () => {
-      if (!id) return;
+    ensureAuthed();
+  }, []);
+
+  // FETCH BUSINESS
+  useEffect(() => {
+    if (!id || !token) return;
+
+    const loadData = async () => {
       try {
-        const res = await api.get(buildPath(`/businesses/${id}`));
+        const res = await api.get(`/businesses/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         const b = res.data;
 
-        const coords = b?.location?.coordinates;
-        const lng = coords?.[0];
-        const lat = coords?.[1];
-        const usedLat = (typeof lat === 'number') ? lat : 4.0511;
-        const usedLng = (typeof lng === 'number') ? lng : 9.7679;
+        // Fill the form
+        reset({
+          name: b.name,
+          category: b.category,
+          description: b.description,
+          phone: b.phone,
+          email: b.email,
+          website: b.website,
+          whatsappPhone: "",
+          lat: b.location?.coordinates[1],
+          lng: b.location?.coordinates[0],
+        });
 
-        setPos([usedLat, usedLng]);
+        setPos([b.location?.coordinates[1], b.location?.coordinates[0]]);
         setExistingImages(b.images || []);
 
-        reset({
-          name: b.name || '',
-          category: b.category || '',
-          description: b.description || '',
-          phone: b.phone || '',
-          email: b.email || '',
-          website: b.website || '',
-          whatsappPhone: '',
-          whatsappLink: b.whatsappLink || '',
-          lat: usedLat,
-          lng: usedLng
-        });
       } catch (err) {
-        console.error('Failed to load business', err);
-        toast.error(err?.response?.data?.msg || 'Failed to load business');
+        toast.error("Could not load business");
+      } finally {
+        setLoading(false);
       }
     };
-    load();
-  }, [id, reset]);
 
-  useEffect(() => {
-    setValue('lat', pos[0]);
-    setValue('lng', pos[1]);
-  }, [pos, setValue]);
+    loadData();
+  }, [id, token, reset]);
 
-  function buildPath(path) {
-    if (!path) return path;
-    if (path.startsWith('http')) return path;
-    return path.startsWith('/') ? path : `/${path}`;
-  }
-
-  const onFiles = (e) => {
-    const selected = Array.from(e.target.files || []);
-    if (selected.length > 3) selected.length = 3;
-    setNewFiles(selected);
+  const onImages = (e) => {
+    const max = 3 - existingImages.length;
+    const selected = Array.from(e.target.files).slice(0, max);
+    setNewImages((prev) => [...prev, ...selected]);
   };
+
+  const removeNewImage = (i) =>
+    setNewImages((prev) => prev.filter((_, index) => index !== i));
+
+  const removeExistingImage = (img) =>
+    setExistingImages((prev) => prev.filter((x) => x !== img));
 
   const onSubmit = async (data) => {
     try {
       const fd = new FormData();
-      fd.append('name', data.name);
-      fd.append('category', data.category);
-      fd.append('description', data.description);
-      if (data.phone) fd.append('phone', data.phone);
-      if (data.email) fd.append('email', data.email);
-      if (data.website) fd.append('website', data.website);
+      fd.append("name", data.name);
+      fd.append("category", data.category);
+      fd.append("description", data.description);
+      fd.append("phone", data.phone || "");
+      fd.append("email", data.email || "");
+      fd.append("website", data.website || "");
 
-      const explicit = (data.whatsappLink || '').trim();
-      const derived = data.whatsappPhone ? toWaLink(stripPhone(data.whatsappPhone)) : '';
-      fd.append('whatsappLink', explicit || derived || '');
+      fd.append("imagesToKeep", JSON.stringify(existingImages));
 
-      const loc = { type: 'Point', coordinates: [Number(data.lng), Number(data.lat)] };
-      fd.append('location', JSON.stringify(loc));
+      const loc = {
+        type: "Point",
+        coordinates: [Number(data.lng), Number(data.lat)],
+      };
+      fd.append("location", JSON.stringify(loc));
 
-      if (newFiles.length) newFiles.forEach(f => fd.append('images', f));
+      newImages.forEach((f) => fd.append("images", f));
 
-      await api.put(buildPath(`/businesses/${id}`), fd, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+      await api.put(`/businesses/${id}`, fd, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success('Updated');
-      router.push('/dashboard');
-    } catch (e) {
-      console.error('Update failed', e);
-      toast.error(e?.response?.data?.msg || 'Update failed');
+
+      toast.success("Business updated successfully!");
+      router.push("/dashboard");
+
+    } catch (err) {
+      toast.error("Update failed");
     }
   };
 
-  const publicBase = getPublicBase();
+  if (loading) return <p style={{ padding: 50 }}>Loading…</p>;
 
   return (
     <Container className="py-4">
       <Card className="p-4 shadow-sm">
-        <h3 className="mb-3">Edit Business</h3>
+        <h3>Edit Business</h3>
+
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row className="g-3">
-            {/* Form fields omitted for brevity, keep your existing code */}
 
-            {/* Map Section */}
-            <Col md={12} className="mb-3">
-              <div style={{ height: 320 }}>
-                <EditBusinessMap position={pos} setPos={setPos} />
-              </div>
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Name</Form.Label>
+                <Form.Control {...register("name")} />
+              </Form.Group>
             </Col>
 
-            {/* Image Upload & Preview */}
-            <Col md={12}>
-              <Form.Group className="mb-2">
-                <Form.Label>Replace Images (max 3)</Form.Label>
-                <Form.Control type="file" multiple accept="image/*" onChange={onFiles} />
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Category</Form.Label>
+                <Form.Control {...register("category")} />
               </Form.Group>
+            </Col>
 
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label>Description</Form.Label>
+                <Form.Control as="textarea" rows={3} {...register("description")} />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Phone</Form.Label>
+                <Form.Control {...register("phone")} />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Email</Form.Label>
+                <Form.Control {...register("email")} />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Website</Form.Label>
+                <Form.Control {...register("website")} />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Latitude</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  {...register("lat")}
+                  onChange={(e) =>
+                    setPos([Number(e.target.value), pos[1]])
+                  }
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Longitude</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  {...register("lng")}
+                  onChange={(e) =>
+                    setPos([pos[0], Number(e.target.value)])
+                  }
+                />
+              </Form.Group>
+            </Col>
+
+            <Col md={12} style={{ height: 300 }}>
+              <BusinessMap position={pos} setPos={setPos} />
+            </Col>
+
+            <Col md={12}>
+              <Form.Label>Existing Images</Form.Label>
               <div className="d-flex gap-3 flex-wrap">
-                {existingImages.map((src, i) => {
-                  const imgUrl = src && src.startsWith('http') ? src : `${publicBase}${src.startsWith('/') ? '' : '/'}${src}`;
-                  return (
-                    <div key={i} className="position-relative">
-                      <Image src={imgUrl} alt="existing" thumbnail style={{ width: 120, height: 120, objectFit: 'cover' }} />
-                    </div>
-                  );
-                })}
-
-                {newFiles.map((f, i) => (
-                  <Image key={`new-${i}`} src={URL.createObjectURL(f)} alt="new" thumbnail style={{ width: 120, height: 120, objectFit: 'cover' }} />
+                {existingImages.map((img, i) => (
+                  <div key={i} className="position-relative">
+                    <Image
+                      src={img}
+                      alt=""
+                      thumbnail
+                      style={{ width: 120, height: 120, objectFit: "cover" }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      className="position-absolute top-0 end-0"
+                      onClick={() => removeExistingImage(img)}
+                    >
+                      ×
+                    </Button>
+                  </div>
                 ))}
               </div>
             </Col>
 
-            <Col md={12} className="mt-2">
-              <Button type="submit" disabled={isSubmitting}>Save Changes</Button>
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label>Upload New Images</Form.Label>
+                <Form.Control type="file" multiple accept="image/*" onChange={onImages} />
+              </Form.Group>
             </Col>
+
+            <Col md={12}>
+              <div className="d-flex gap-3 flex-wrap">
+                {newImages.map((f, i) => (
+                  <div key={i} className="position-relative">
+                    <Image
+                      src={URL.createObjectURL(f)}
+                      thumbnail
+                      style={{ width: 120, height: 120, objectFit: "cover" }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      className="position-absolute top-0 end-0"
+                      onClick={() => removeNewImage(i)}
+                    >
+                      ×
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </Col>
+
+            <Col md={12}>
+              <Button type="submit">Save Changes</Button>
+            </Col>
+
           </Row>
         </Form>
       </Card>
