@@ -179,6 +179,26 @@ export default function AddBusiness() {
                 <Form.Control {...register('whatsappPhone')} />
               </Form.Group>
             </Col>
+                            {/* Address fields */}
+                <Col md={4}>
+                  <Form.Group className="mb-2">
+                    <Form.Label>Country</Form.Label>
+                    <Form.Control {...register('country')} placeholder="Country" />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group className="mb-2">
+                    <Form.Label>City / Town</Form.Label>
+                    <Form.Control {...register('city')} placeholder="City or Town" />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group className="mb-2">
+                    <Form.Label>Street / Address</Form.Label>
+                    <Form.Control {...register('street')} placeholder="Street, number etc." />
+                  </Form.Group>
+                </Col>
+
 
             {/* Coordinates */}
             <Col md={6}>
