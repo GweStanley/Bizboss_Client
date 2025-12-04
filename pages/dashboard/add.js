@@ -224,7 +224,7 @@ export default function AddBusiness() {
             {/* Images */}
             <Col md={12}>
               <Form.Group className="mb-2">
-                <Form.Label>Images (max 3)</Form.Label>
+                <Form.Label>Images (max 3. And single word image names only)</Form.Label>
                 <Form.Control type="file" multiple accept="image/*" onChange={onFiles} />
               </Form.Group>
               <div className="d-flex gap-3 flex-wrap">
