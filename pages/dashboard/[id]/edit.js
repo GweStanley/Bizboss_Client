@@ -48,15 +48,12 @@ export default function EditBusiness() {
     formState: { errors, isSubmitting }
   } = useForm({ resolver: zodResolver(schema) });
 
-  // Only run ensureAuthed once
-  useEffect(() => {
-    ensureAuthed();
-  }, []); // GOOD — Vercel will not complain
+  // Ensure auth
+  useEffect(() => { ensureAuthed(); }, []);
 
   // Load business data
   useEffect(() => {
     if (!id) return;
-
     const load = async () => {
       try {
         const res = await api.get(`/businesses/${id}`);
@@ -86,7 +83,6 @@ export default function EditBusiness() {
         toast.error(err?.response?.data?.msg || 'Failed to load business');
       }
     };
-
     load();
   }, [id, reset]);
 
@@ -96,7 +92,7 @@ export default function EditBusiness() {
     setValue('lng', pos[1]);
   }, [pos, setValue]);
 
-  // New file picker
+  // File picker
   const onFiles = (e) => {
     const selected = Array.from(e.target.files || []);
     if (selected.length > 3) selected.length = 3;
@@ -107,7 +103,6 @@ export default function EditBusiness() {
   const onSubmit = async (data) => {
     try {
       const fd = new FormData();
-
       fd.append('name', data.name);
       fd.append('category', data.category);
       fd.append('description', data.description);
@@ -120,15 +115,10 @@ export default function EditBusiness() {
       const derived = data.whatsappPhone ? toWaLink(stripPhone(data.whatsappPhone)) : '';
       fd.append('whatsappLink', explicit || derived || '');
 
-      const loc = {
-        type: 'Point',
-        coordinates: [Number(data.lng), Number(data.lat)]
-      };
+      const loc = { type: 'Point', coordinates: [Number(data.lng), Number(data.lat)] };
       fd.append('location', JSON.stringify(loc));
 
-      if (newFiles.length) {
-        newFiles.forEach(f => fd.append('images', f));
-      }
+      if (newFiles.length) newFiles.forEach(f => fd.append('images', f));
 
       await api.put(`/businesses/${id}`, fd, {
         headers: {
@@ -156,7 +146,74 @@ export default function EditBusiness() {
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row className="g-3">
 
-            {/* Keep your original form fields unchanged */}
+            {/* Name */}
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Name</Form.Label>
+                <Form.Control {...register("name")} isInvalid={!!errors.name} />
+                <Form.Control.Feedback type="invalid">{errors.name?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            {/* Category */}
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Category</Form.Label>
+                <Form.Control {...register("category")} isInvalid={!!errors.category} />
+                <Form.Control.Feedback type="invalid">{errors.category?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            {/* Description */}
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label>Description</Form.Label>
+                <Form.Control as="textarea" rows={4} {...register("description")} isInvalid={!!errors.description} />
+                <Form.Control.Feedback type="invalid">{errors.description?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            {/* Phone */}
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Phone</Form.Label>
+                <Form.Control {...register("phone")} />
+              </Form.Group>
+            </Col>
+
+            {/* Email */}
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Email</Form.Label>
+                <Form.Control {...register("email")} isInvalid={!!errors.email} />
+                <Form.Control.Feedback type="invalid">{errors.email?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            {/* Website */}
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>Website</Form.Label>
+                <Form.Control {...register("website")} isInvalid={!!errors.website} />
+                <Form.Control.Feedback type="invalid">{errors.website?.message}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+
+            {/* WhatsApp Phone */}
+            <Col md={6}>
+              <Form.Group>
+                <Form.Label>WhatsApp Phone</Form.Label>
+                <Form.Control {...register("whatsappPhone")} />
+              </Form.Group>
+            </Col>
+
+            {/* WhatsApp Link */}
+            <Col md={12}>
+              <Form.Group>
+                <Form.Label>WhatsApp Link (optional)</Form.Label>
+                <Form.Control {...register("whatsappLink")} />
+              </Form.Group>
+            </Col>
 
             {/* Map */}
             <Col md={12} className="mb-3">
