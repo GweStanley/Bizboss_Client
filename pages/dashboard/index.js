@@ -5,6 +5,8 @@ import api, { buildUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
+import '../styles/responsive-table.css';
+
 
 export default function Dashboard() {
   const { user, token, ensureAuthed } = useAuth();
@@ -68,49 +70,48 @@ export default function Dashboard() {
         <Link href="/dashboard/add" className="btn btn-primary">Add Business</Link>
       </div>
 
-      <Table responsive bordered hover>
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Created</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length ? rows.map(b => (
-            <tr key={b._id}>
-              <td style={{ width: 100 }}>
-                {b.images?.length ? (
-                  <Image
-                    src={resolveUrl(b.images[0])}
-                    alt={b.name}
-                    thumbnail
-                    style={{ maxWidth: 80, maxHeight: 80, objectFit: 'cover' }}
-                  />
-                ) : (
-                  <span>No image</span>
-                )}
-              </td>
-              <td>{b.name}</td>
-              <td>{b.category}</td>
-              <td>{new Date(b.createdAt).toLocaleString()}</td>
-              <td className="d-flex gap-2">
-                <Link href={`/dashboard/${b._id}/edit`} className="btn btn-sm btn-outline-secondary">Edit</Link>
-                <Button size="sm" variant="outline-danger" onClick={() => onDelete(b._id)}>Delete</Button>
-                <Link href={`/business/${b._id}`} className="btn btn-sm btn-outline-primary">View</Link>
-              <Link href={`/boost`} className="btn btn-sm btn-outline-primary">Boost</Link>
-
-              </td>
-            </tr>
-          )) : (
-            <tr>
-              <td colSpan={5} className="text-center">No businesses yet.</td>
-            </tr>
+<Table responsive bordered hover className="responsive-table">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Created</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.length ? rows.map(b => (
+      <tr key={b._id}>
+        <td className="cell-image" data-label="Image" style={{ width: 100 }}>
+          {b.images?.length ? (
+            <Image
+              src={resolveUrl(b.images[0])}
+              alt={b.name}
+              thumbnail
+              style={{ maxWidth: 80, maxHeight: 80, objectFit: 'cover' }}
+            />
+          ) : (
+            <span>No image</span>
           )}
-        </tbody>
-      </Table>
+        </td>
+        <td data-label="Name">{b.name}</td>
+        <td data-label="Category">{b.category}</td>
+        <td data-label="Created">{new Date(b.createdAt).toLocaleString()}</td>
+        <td className="cell-actions d-flex flex-wrap gap-2" data-label="Actions">
+          <Link href={`/dashboard/${b._id}/edit`} className="btn btn-sm btn-outline-secondary">Edit</Link>
+          <Button size="sm" variant="outline-danger" onClick={() => onDelete(b._id)}>Delete</Button>
+          <Link href={`/business/${b._id}`} className="btn btn-sm btn-outline-primary">View</Link>
+          <Link href={`/boost`} className="btn btn-sm btn-outline-primary">Boost</Link>
+        </td>
+      </tr>
+    )) : (
+      <tr>
+        <td colSpan={5} className="text-center">No businesses yet.</td>
+      </tr>
+    )}
+  </tbody>
+</Table>
     </Container>
   );
 }
