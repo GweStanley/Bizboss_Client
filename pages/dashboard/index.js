@@ -5,7 +5,6 @@ import api, { buildUrl } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
-import '../styles/responsive-table.css';
 
 
 export default function Dashboard() {
