@@ -226,20 +226,6 @@ export default function AddBusiness() {
               </Form.Group>
             </Col>
 
-            {/* Map area: load-on-demand to avoid client crash */}
-            <Col md={12} style={{ height: 320 }}>
-              {!mapVisible && (
-                <div className="d-flex align-items-center justify-content-between" style={{ height: '100%' }}>
-                  <small className="text-muted">Map is off to prevent client errors. Click to load.</small>
-                  <Button onClick={() => setMapVisible(true)}>Show map</Button>
-                </div>
-              )}
-              {mapVisible && typeof window !== 'undefined' && (
-                <div style={{ height: 320 }}>
-                  <BusinessMap position={pos} setPos={setPos} />
-                </div>
-              )}
-            </Col>
 
             {/* Images */}
             <Col md={12}>
