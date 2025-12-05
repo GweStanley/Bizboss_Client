@@ -8,7 +8,7 @@ export default function CarouselHome() {
         <Carousel>
           <Carousel.Item>
             <img className="d-block w-100" alt="slide1"
-                 src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop" />
+                 src="/images/BOD_room.jpg" />
             <Carousel.Caption>
               <h3>Showcase your business</h3>
               <p>Register and get discovered.</p>
