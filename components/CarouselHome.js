@@ -21,7 +21,7 @@ export default function CarouselHome() {
             <Carousel.Caption>
               <h3>Search with filters</h3>
               <p>Category, name, and more.</p>
-              <Link href="#businesses" className="btn btn-outline-secondary">Find Business or Service</Link>
+              <Link href="#businesses" className="btn btn-secondary">Find Business or Service</Link>
             </Carousel.Caption>
           </Carousel.Item>
           <Carousel.Item>
