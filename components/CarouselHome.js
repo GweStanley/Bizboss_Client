@@ -17,22 +17,32 @@ export default function CarouselHome() {
           </Carousel.Item>
           <Carousel.Item>
             <img className="d-block w-100" alt="slide2"
-                 src="https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=1600&auto=format&fit=crop" />
+                 src="/images/bussiness_discovery.jpg" />
             <Carousel.Caption>
               <h3>Search with filters</h3>
               <p>Category, name, and more.</p>
-              <Link href="#businesses" className="btn btn-outline-light">Explore</Link>
+              <Link href="#businesses" className="btn btn-outline-secondary">Find Business or Service</Link>
             </Carousel.Caption>
           </Carousel.Item>
           <Carousel.Item>
             <img className="d-block w-100" alt="slide3"
-                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600&auto=format&fit=crop" />
+                 src="/images/registration.jpg" />
             <Carousel.Caption>
-              <h3>Map coordinates</h3>
+              <h3>Register Your Business with Map coordinates to Give Customer Google map Directions</h3>
               <p>Click the map or type lat/lng.</p>
-              <Link href="/register" className="btn btn-primary">Join Now</Link>
+              <Link href="/help" className="btn btn-primary">See Help</Link>
             </Carousel.Caption>
           </Carousel.Item>
+                    <Carousel.Item>
+            <img className="d-block w-100" alt="slide3"
+                 src="\images\hands-pc.jpg" />
+            <Carousel.Caption>
+              <h3>Boost Your Business To Get Seen By More Potential Customers</h3>
+              <p>Your Business will be listed first in your category and ran on google ads</p>
+              <Link href="/help" className="btn btn-primary">Learn More</Link>
+            </Carousel.Caption>
+          </Carousel.Item>
+
         </Carousel>
       </Container>
     </div>
